@@ -1,8 +1,8 @@
-# ScrubEncoder
+# Dehashed Query and Crack
 dehashed.py is a  <a href="https://dehashed.com">dehashed.com</a> query tool which only queries 'domain' as of now. It will output the gathered cleartext passwords and hashes to a file.
 hash_crack.py will send all the specified hashes to <a href="https://hashes.com">hashes.com</a> in attempt to crack the hash. It will then return all cracked passwords.
 
-dehashed.py usage:
+dehashed.py help:
 ```
 usage: dehashed.py [-h] [-a [API_KEY]] [-u [USERNAME]] [-d DOMAIN] [-f DEHASHED_DATA_FILE] [-o [DEHASHED_FILE]] [--version]
 
@@ -15,6 +15,14 @@ optional arguments:
                         Read json data from previously saved API query.
   -o [DEHASHED_FILE]    Stores all hashes and cracked passwords in files. [dehashed_*.txt]
   --version             show program's version number and exit
+```
+dehashed.py usage [hardcoded dehashed email and api key]:
+```
+python3 dehashed.py -d domain.com -o output_file.txt
+```
+dehashed.py usage [non-hardcoded dehashed credentials]:
+```
+python3 dehashed.py -o -d domain.com -a API-KEY -u user@domain.com 
 ```
 
 Example Output of dehashed.py:
