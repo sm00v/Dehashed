@@ -26,13 +26,21 @@ parser.add_argument('-o', action='store', dest='dehashed_file', nargs='?', const
 parser.add_argument('--version', action='version', version='%(prog)s 1337.1')
 args = parser.parse_args()
 
-def query_dehashed_domain(dehashed_api_key, dehashed_username):
+def check_api_auth_success(dehashed_json_raw):
+    check_success = json.loads(dehashed_json_raw)
+    if check_success.get('success') == False:
+        sys.exit('[-] API Authentication Failure.')
+    else:
+        pass
+
+def query_dehashed_domain():
     headers = {'Accept': 'application/json',}
     params = (('query', 'domain:' + args.domain),)
     dehashed_json_raw = requests.get('https://api.dehashed.com/search',
                             headers=headers,
                             params=params,
-                            auth=(dehashed_username, dehashed_api_key)).text
+                            auth=(args.username, args.api_key)).text
+    check_api_auth_success(dehashed_json_raw)
     dehashed_json = jsonify_data(dehashed_json_raw)
     return dehashed_json
 
@@ -58,24 +66,45 @@ def filter_entries():
 
 def output():
     print('[+] Cleartext Passwords {email:password}')
-    cracked=open(args.dehashed_file + '_cracked.txt', 'a')
-    hashes=open(args.dehashed_file + '_hashes.txt', 'a')
+    bool = False
+    try:
+        cracked=open(args.dehashed_file + '_cracked.txt', 'a') #These are set to false by default in case user does not want to save output to file
+        hashes=open(args.dehashed_file + '_hashes.txt', 'a')
+        bool = True
+    except Exception as e:
+        print('[-] Did not save.')
     for combo in password_combos:
         combo_raw = combo[0] + ':' + combo[1]
         print(combo_raw)
-        cracked.write(combo_raw)
-        cracked.write('\n')
+        try:
+            cracked.write(combo_raw)
+            cracked.write('\n')
+        except Exception as e:
+            pass
     print('\n\n[+] Hashed Passwords {email:hash}')
     for combo in hash_combos:
         combo_raw = combo[0] + ':' + combo[1]
-        hashes.write(combo_raw)
-        hashes.write('\n')
+        try:
+            hashes.write(combo_raw)
+            hashes.write('\n')
+        except Exception as e:
+            pass
         print(combo_raw)
     print('\n\n[+] Raw Hashes to Copy/Paste then crack >:)')
     for combo in hash_combos:
         print(combo[1])
-    print('[+] Cracked passwords written to ' + args.dehashed_file + '_cracked.txt')
-    print('[+] Hashes written to ' + args.dehashed_file + '_hashes.txt')
+    if bool:
+        print('\n[+] Cracked passwords written to ' + args.dehashed_file + '_cracked.txt')
+        print('[+] Hashes written to ' + args.dehashed_file + '_hashes.txt')
+    else:
+        print('[+] Done!')
+
+def check_data_returned(entries):
+    try:
+        for x in entries:
+            pass
+    except TypeError:
+        sys.exit('[-] No data returned. Probably error in syntax.')
 
 def control_flow():
     if args.dehashed_data_file:
@@ -84,15 +113,16 @@ def control_flow():
             json_raw_data = open(args.dehashed_data_file, 'r')
             json_data = json.loads(json_raw_data.read())
             entries = json_data['entries']
+            check_data_returned(entries)
             return entries
         except json.decoder.JSONDecodeError:
             sys.exit('[-] Failed to import JSON file.')
     elif args.api_key and args.domain and args.username:
         print('[+] Querying Dehashed for all entries under domain: ' + args.domain + '...')
-        entries = query_dehashed_domain(dehashed_api_key, dehashed_username)
+        entries = query_dehashed_domain()
         return entries
     else:
-        print('Missing Something')
+        sys.exit('[-] Missing argument, exiting.')
 
 if __name__ == '__main__':
     entries = control_flow()

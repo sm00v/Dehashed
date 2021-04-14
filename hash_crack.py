@@ -7,9 +7,12 @@ import sys
 import argparse
 
 hashes = 'dehashed_hashes.txt'
+cracked_hashes = 'cracked_hashes.txt'
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', action='store', dest='hashes', nargs='?', default=hashes, const=hashes,
-                    help='Input any hash file separated by newline.')
+                    help='Input any hash file separated by newline in format {email:hash}.')
+parser.add_argument('-o', action='store', dest='cracked_hashes', nargs='?', const=cracked_hashes,
+                    help='Stores all hashes and cracked passwords in files. [dehashed_*.txt]')
 args = parser.parse_args()
 
 def init_useragent():
@@ -18,9 +21,15 @@ def init_useragent():
 def filter_file_hashes(file):
     hashes_filtered = []
     for hash in file:
-        hash = hash.strip().split('.com:')[1]
-        raw_hash = ''.join(hash[1:])
+        hash = hash.strip().split('.com:')[1:][0]
+        raw_hash = ''.join(hash)
         hashes_filtered.append(raw_hash)
+    # print('\n\n\nNEXT')
+    # for hash in file:
+    #     hash = hash.strip().split('.com:')[1]
+    #     raw_hash = ''.join(hash)
+    #     print(raw_hash)
+    #     # hashes_filtered.append(raw_hash)
     return hashes_filtered
 
 def init_hash_list():
@@ -76,7 +85,7 @@ def switchIP():
         'https': 'socks5://localhost:9050'}
     url = 'https://api.ipify.org'
     ip = requests.get(url, proxies=proxies).text
-    print('[+] Done! New IP: ' + ip)
+    print('[+] New IP: ' + ip)
 
 def send_hashes():
     ua = init_useragent()
@@ -91,7 +100,10 @@ def send_hashes():
 
 def display_hashes():
     print('[+] Cracked ' + str(len(all_cracked)) + ' hashes:')
+    file = open(cracked_hashes, 'a')
     for combo in all_cracked:
+        file.write(combo)
+        file.write('\n')
         print(combo)
 
 if __name__ == '__main__':
