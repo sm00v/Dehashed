@@ -51,14 +51,13 @@
     ```
 
 ## 2: hash_crack.py usage:
-
-    ```
+    *
     usage: hash_crack.py [-h] [-f [HASHES]]
 
     optional arguments:
       -h, --help   show this help message and exit
       -f [HASHES]  Input any hash file separated by newline in format {email:hash}.
-    ```
+    *
     hash_crack.py usage [no file specified will search for direct output from dehashed.py [dehashed_hashes.txt]]:
     ```
     python3 hash_crack.py -f 
