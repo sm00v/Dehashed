@@ -1,5 +1,6 @@
 # Dehashed Query and Crack
 dehashed.py is a  <a href="https://dehashed.com">dehashed.com</a> query tool which only queries 'domain' as of now. It will output the gathered cleartext passwords and hashes to a file.
+
 hash_crack.py will send all the specified hashes to <a href="https://hashes.com">hashes.com</a> in attempt to crack the hash. It will then return all cracked passwords.
 
 dehashed.py help:
@@ -44,4 +45,7 @@ tom@domain.com:22c212f0d123a3a031aa063f85800be2
 [+] Raw Hashes to Copy/Paste then crack >:)
 $2a$08$K2YzRKMF7sVlHwIwuGsqUuJ5B1Q0CG3RZzO1pectKlytIbVmKra4q
 22c212f0d123a3a031aa063f85800be2
+
+[+] Cracked passwords written to dehashed_cracked.txt
+[+] Hashes written to dehashed_hashes.txt
 ```
