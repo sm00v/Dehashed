@@ -1,92 +1,102 @@
+import json
+import requests
+import argparse
 import requests
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 from time import sleep
-from stem import Signal
-from stem.control import Controller
 import os
 import sys
 
-def init_useragent():
-    return UserAgent()
+dehashed_api_key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' #Hardcode API key if you so choose
+dehashed_username = 'XXXXXXXXXXXXXXXXXXX' #Hardcode email if you so choose
+dehashed_default = 'dehashed'
 
-def init_hash_list():
-    hash_file = open('/Users/omega/Documents/work/vda/texas_bank/dehashed/hashes.txt', 'r')
-    file = hash_file.readlines()
-    numbers = [line.strip() for line in file]
-    hash_chunks = [numbers[i:i + 25] for i in range(0, len(numbers), 25)]
-    return hash_chunks
-    # hash_file = open(sys.argv[1], 'r')
+parser = argparse.ArgumentParser()
+parser.add_argument('-a', dest='api_key', nargs='?', default=dehashed_api_key, const=dehashed_api_key,
+                    help='Use your dehashed.com API key to query domain.')
+parser.add_argument('-u', action='store', nargs='?', dest='username', default=dehashed_username, const=dehashed_username,
+                    help='Use your dehashed.com username to auth to API.')
+parser.add_argument('-d', action='store', dest='domain',
+                    help='Target domain to search dehashed.com for.')
+parser.add_argument('-f', action='store', dest='dehashed_data_file',
+                    help='Read json data from previously saved API query.')
+parser.add_argument('-o', action='store', dest='dehashed_file', nargs='?', const=dehashed_default,
+                    help='Stores all hashes and cracked passwords in files. [dehashed_*.txt]')
+parser.add_argument('--version', action='version', version='%(prog)s 1337.1')
+args = parser.parse_args()
 
-def create_session(ua):
-    session = requests.session()
-    session.proxies = {}
-    session.proxies['http'] = 'socks5://127.0.0.1:9050'
-    session.proxies['https'] = 'socks5://127.0.0.1:9050'
-    headers = {"Connection": "close", "Cache-Control": "max-age=0", "Upgrade-Insecure-Requests": "1",
-               "Origin": "https://hashes.com", "Content-Type": "application/x-www-form-urlencoded",
-               "User-Agent": ua.random,
-               # "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-               # "Sec-Fetch-Site": "same-origin", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-User": "?1",
-               # "Sec-Fetch-Dest": "document", "Referer": "https://hashes.com/en/decrypt/hash",
-               "Accept-Encoding": "gzip, deflate", "Accept-Language": "en-US,en;q=0.9"}
-    session.cookies.clear()
-    return session, headers
+def query_dehashed_domain(dehashed_api_key, dehashed_username):
+    headers = {'Accept': 'application/json',}
+    params = (('query', 'domain:' + args.domain),)
+    dehashed_json_raw = requests.get('https://api.dehashed.com/search',
+                            headers=headers,
+                            params=params,
+                            auth=(dehashed_username, dehashed_api_key)).text
+    dehashed_json = jsonify_data(dehashed_json_raw)
+    return dehashed_json
 
-def make_request(session, raw_hashes, headers):
-    data = {"hashes": raw_hashes, "vyd": "64", "submitted": "true"}
-    data_raw = session.post(hashes_com_url, headers=headers, data=data)
-    data = data_raw.content
-    return data
+def jsonify_data(json_raw_data):
+    json_data = json.loads(json_raw_data)
+    entries = json_data['entries']
+    return entries
 
-def reset_session(raw_hashes):
-    switchIP()
-    session, headers = create_session(init_useragent())
-    data = make_request(session, raw_hashes, headers)
-    filter_hashes(data, raw_hashes)
+def filter_entries():
+    for entry in entries:
+        email = entry['email']
+        # username = entry['username']
+        password = entry['password']
+        hash = entry['hashed_password']
+        if len(password) >= 1:
+            combo = email,password
+            password_combos.append(combo)
+        elif len(hash) >= 1:
+            combo = email,hash
+            hash_combos.append(combo)
+        else:
+            pass
 
-def filter_hashes(data, raw_hashes):
-    soup = BeautifulSoup(data, 'html.parser')
-    mydivs = soup.findAll("div", {"class": "py-1"})
-    if 'Invalid captcha.' in data.decode('utf-8'):
-        print('[-] Blocked by captcha, retrying...')
-        reset_session(raw_hashes)
+def output():
+    print('[+] Cleartext Passwords {email:password}')
+    cracked=open(args.dehashed_file + '_cracked.txt', 'a')
+    hashes=open(args.dehashed_file + '_hashes.txt', 'a')
+    for combo in password_combos:
+        combo_raw = combo[0] + ':' + combo[1]
+        print(combo_raw)
+        cracked.write(combo_raw)
+        cracked.write('\n')
+    print('\n\n[+] Hashed Passwords {email:hash}')
+    for combo in hash_combos:
+        combo_raw = combo[0] + ':' + combo[1]
+        hashes.write(combo_raw)
+        hashes.write('\n')
+        print(combo_raw)
+    print('\n\n[+] Raw Hashes to Copy/Paste then crack >:)')
+    for combo in hash_combos:
+        print(combo[1])
+    print('[+] Cracked passwords written to ' + args.dehashed_file + '_cracked.txt')
+    print('[+] Hashes written to ' + args.dehashed_file + '_hashes.txt')
+
+def control_flow():
+    if args.dehashed_data_file:
+        try:
+            print('[+] Parsing Dehashed output file...')
+            json_raw_data = open(args.dehashed_data_file, 'r')
+            json_data = json.loads(json_raw_data.read())
+            entries = json_data['entries']
+            return entries
+        except json.decoder.JSONDecodeError:
+            sys.exit('[-] Failed to import JSON file.')
+    elif args.api_key and args.domain and args.username:
+        print('[+] Querying Dehashed for all entries under domain: ' + args.domain + '...')
+        entries = query_dehashed_domain(dehashed_api_key, dehashed_username)
+        return entries
     else:
-        for hash in mydivs:
-            hash = str(hash)
-            combo = hash.split('>')[1].split('<')[0]
-            all_cracked.append(combo)
-        print('[+] Success! Returned ' + str(len(mydivs)) + ' passwords!')
-
-def switchIP():
-    print('[+] Restarting TOR...')
-    os.system('brew services restart tor > /dev/null')
-    sleep(10)
-    proxies = {
-        'http': 'socks5://localhost:9050',
-        'https': 'socks5://localhost:9050'}
-    url = 'https://api.ipify.org'
-    ip = requests.get(url, proxies=proxies).text
-    print('[+] Done! New IP: ' + ip)
-
-def send_hashes():
-    ua = init_useragent()
-    hash_chunks = init_hash_list()
-    for hash_list in hash_chunks:
-        switchIP()
-        print('[+] Sending ' + str(len(hash_list)) + ' hashes...')
-        session, headers = create_session(ua)
-        raw_hashes = "\r\n".join(hash_list)
-        data = make_request(session, raw_hashes, headers)
-        filter_hashes(data, raw_hashes)
-
-def display_hashes():
-    print('[+] Cracked ' + str(len(all_cracked)) + ' hashes:')
-    for combo in all_cracked:
-        print(combo)
+        print('Missing Something')
 
 if __name__ == '__main__':
-    all_cracked = []
-    hashes_com_url = "https://hashes.com:443/en/decrypt/hash"
-    send_hashes()
-    display_hashes()
+    entries = control_flow()
+    hash_combos = []
+    password_combos = []
+    filter_entries()
+    output()
