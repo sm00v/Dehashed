@@ -1,9 +1,9 @@
 # Dehashed Query and Crack
-1:<b>dehashed.py</b> is a  <a href="https://dehashed.com">dehashed.com</a> query tool which only queries 'domain' as of now. It will output the gathered cleartext passwords and hashes to a file.
+1: <b>dehashed.py</b> is a  <a href="https://dehashed.com">dehashed.com</a> query tool which only queries 'domain' as of now. It will output the gathered cleartext passwords and hashes to a file.
 
-2:<b>hash_crack.py</b> will send all the specified hashes to <a href="https://hashes.com">hashes.com</a> in attempt to crack the hash. It will then return all cracked passwords.
+2: <b>hash_crack.py</b> will send all the specified hashes to <a href="https://hashes.com">hashes.com</a> in attempt to crack the hash. It will then return all cracked passwords.
 
-`dehashed.py usage:`
+                                                        `<b>dehashed.py usage:</b>`
 ```
 usage: dehashed.py [-h] [-a [API_KEY]] [-u [USERNAME]] [-d DOMAIN] [-f DEHASHED_DATA_FILE] [-o [DEHASHED_FILE]] [--version]
 
@@ -50,10 +50,8 @@ $2a$08$K2YzRKMF7sVlHwIwuGsqUuJ5B1Q0CG3RZzO1pectKlytIbVmKra4q
 [+] Hashes written to dehashed_hashes.txt
 ```
 
+                                                        `<b>hash_crack.py usage:</b>`
 
-
-
-`hash_crack.py usage:`
 ```
 usage: hash_crack.py [-h] [-f [HASHES]]
 
