@@ -16,6 +16,10 @@ optional arguments:
   -o [DEHASHED_FILE]    Stores all hashes and cracked passwords in files. [dehashed_*.txt]
   --version             show program's version number and exit
 ```
+dehashed.py usage [parse saved query in json format]:
+```
+python3 dehashed.py -f previous_query.json
+```
 dehashed.py usage [hardcoded dehashed email and api key]:
 ```
 python3 dehashed.py -d domain.com -o output_file.txt
