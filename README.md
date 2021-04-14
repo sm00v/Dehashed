@@ -58,16 +58,15 @@ optional arguments:
   -h, --help   show this help message and exit
   -f [HASHES]  Input any hash file separated by newline in format {email:hash}.
 ```
-   hash_crack.py usage [no file specified will search for direct output from dehashed.py [dehashed_hashes.txt]]:
+    hash_crack.py usage [no file specified will search for direct output from dehashed.py {dehashed_hashes.txt}]:
     
     python3 hash_crack.py -f
 
-   hash_crack.py usage [unrelated hash file in format {email:hash}]:
+    hash_crack.py usage [unrelated hash file in format {email:hash}]:
    
     python3 hash_crack.py -f hash_file.txt
 
-   Example Output of hash_crack.py:
-    ```
+    Example Output of hash_crack.py:
     python3 hash_crack.py -f 
     [+] Restarting TOR...
     [+] Done! New IP: 23.129.64.242
@@ -96,4 +95,3 @@ optional arguments:
     [+] Done! New IP: 51.83.131.42
     [+] Success! Returned 0 passwords!
     [+] Cracked 0 hashes:
-    ```
