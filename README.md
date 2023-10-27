@@ -5,7 +5,7 @@
 
 ## 1: dehashed.py usage:
 ```
-usage: dehashed.py [-h] [-a [API_KEY]] [-u [USERNAME]] [-d DOMAIN] [-f DEHASHED_DATA_FILE] [-o [DEHASHED_FILE]] [-n [DEHASHED_FILE_NO_CREDENTIALS]] [-l [DEHASHED_FILE_LIST]] [-r [DEHASHED_FILE_RAW]] [--version]
+usage: dehashed.py [-h] [-a [API_KEY]] [-u [USERNAME]] [-d DOMAIN] [-f DEHASHED_DATA_FILE] [-o [DEHASHED_FILE]] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -15,12 +15,6 @@ optional arguments:
   -f DEHASHED_DATA_FILE
                         Read json data from previously saved API query.
   -o [DEHASHED_FILE]    Stores all hashes and cracked passwords in files. [dehashed_*.txt]
-  -n [DEHASHED_FILE_NO_CREDENTIALS]
-                        Stores all hashes and cracked passwords a file. [dehashed_no_credentials.txt]
-  -l [DEHASHED_FILE_LIST]
-                        Stores user emails and credentials lists in files. [dehashed_users.lst.txt][dehashed_credentials.lst.txt]
-  -r [DEHASHED_FILE_RAW]
-                        Stores API raw json data in a file. [dehashed_[domain].json]
   --version             show program's version number and exit
 ```
    Parse previously saved query in json format:
